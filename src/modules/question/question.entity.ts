@@ -3,8 +3,8 @@ import { Category } from '../category/category.entity';
 
 @Entity({ tableName: 'Question' })
 export class Question {
-  @PrimaryKey()
-  question_id: number;
+  @PrimaryKey({ type: 'uuid' })
+  question_id: string;
 
   // @ManyToOne()
   // category_id: Category;
