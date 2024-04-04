@@ -15,7 +15,7 @@ export class QuestionService {
     private readonly em: EntityManager,
   ) {}
 
-  async GetQuestion() {
+  async GetAllQuestions() {
     return this.questionRepository.findAll();
   }
 

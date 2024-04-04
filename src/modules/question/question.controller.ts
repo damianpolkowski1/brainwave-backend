@@ -18,10 +18,10 @@ export class QuestionController {
 
   @Get()
   getSetOfQuestions() {
-    return this.questionService.GetQuestion();
+    return this.questionService.GetAllQuestions();
   }
 
-  @Get(":id")
+  @Get(':id')
   getQuestionById(@Param('id') id: string) {
     return this.questionService.GetQuestionById(id);
   }
