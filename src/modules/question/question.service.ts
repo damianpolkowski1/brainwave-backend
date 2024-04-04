@@ -19,6 +19,10 @@ export class QuestionService {
     return this.questionRepository.findAll();
   }
 
+  async GetSetOfQuestions(category_id) {
+    return this.questionRepository.find({ category_id: category_id });
+  }
+
   async GetQuestionById(id: string): Promise<Question> {
     const question = await this.questionRepository.findOne({ question_id: id });
     return question;
