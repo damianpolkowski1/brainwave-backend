@@ -17,7 +17,7 @@ import { Question } from './question.entity';
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
 
-  @Get()
+  @Get('all')
   getAllQuestions() {
     return this.questionService.GetAllQuestions();
   }
@@ -60,12 +60,12 @@ export class QuestionController {
     return this.questionService.GetQuestionById(id);
   }
 
-  @Post()
+  @Post('add')
   addQuestion(@Body(ValidationPipe) question: AddQuestionDto) {
     return this.questionService.AddQuestion(question);
   }
 
-  @Patch(':id')
+  @Patch('modify/:id')
   modifyQuestion(
     @Param('id') id: string,
     @Body() modifiedQuestion: ModifyQuestionDto,
@@ -73,7 +73,7 @@ export class QuestionController {
     return this.questionService.ModifyQuestion(id, modifiedQuestion);
   }
 
-  @Delete(':id')
+  @Delete('delete/:id')
   deleteQuestion(@Param('id') id: string) {
     return this.questionService.DeleteQuestion(id);
   }

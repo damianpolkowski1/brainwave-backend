@@ -1,14 +1,5 @@
 import { CategoryService } from './category.service';
-import {
-  Controller,
-  Get,
-  Patch,
-  Delete,
-  Post,
-  Body,
-  ValidationPipe,
-  Param,
-} from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
 @Controller('category')
 export class CategoryController {
