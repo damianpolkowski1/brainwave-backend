@@ -6,6 +6,7 @@ import { QuestionModule } from './modules/question/question.module';
 import { ScoreModule } from './modules/score/score.module';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { CorsMiddleware } from './modules/question/question';
+import { ImagesModule } from './images/images.module';
 import config from './mikro-orm.config';
 
 @Module({
@@ -14,6 +15,7 @@ import config from './mikro-orm.config';
     QuestionModule,
     ScoreModule,
     MikroOrmModule.forRoot(config),
+    ImagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

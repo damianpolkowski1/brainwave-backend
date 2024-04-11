@@ -16,18 +16,16 @@ export class QuestionService {
   ) {}
 
   async GetAllQuestions() {
-    return this.AddRelativePathToArray(await this.questionRepository.findAll());
+    return await this.questionRepository.findAll();
   }
 
   async GetSetOfQuestions(category_id) {
-    return this.AddRelativePathToArray(
-      await this.questionRepository.find({ category_id: category_id }),
-    );
+    return await this.questionRepository.find({ category_id: category_id });
   }
 
   async GetQuestionById(id: string): Promise<Question> {
     const question = await this.questionRepository.findOne({ question_id: id });
-    return this.AddRelativePathToSingleQuestion(question);
+    return question;
   }
 
   async AddQuestion(payload: AddQuestionDto) {
@@ -71,26 +69,5 @@ export class QuestionService {
     this.em.remove(question_to_delete);
     await this.em.flush();
     return question_to_delete;
-  }
-
-  AddRelativePathToArray(questions: Question[]) {
-    const path = require('path');
-    const projectDir = path.resolve(__dirname, '../../..');
-
-    for (let i = 0; i < questions.length; i++) {
-      questions[i].question_picture_path =
-        projectDir + questions[i].question_picture_path;
-    }
-    return questions;
-  }
-
-  AddRelativePathToSingleQuestion(question: Question) {
-    const path = require('path');
-    const projectDir = path.resolve(__dirname, '../../..');
-
-    question.question_picture_path =
-      projectDir + question.question_picture_path;
-
-    return question;
   }
 }
