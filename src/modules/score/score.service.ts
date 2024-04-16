@@ -5,6 +5,7 @@ import { EntityRepository, EntityManager } from '@mikro-orm/mysql';
 import { QuestionAnswer } from 'src/dto/calculate-score.dto';
 import { PostScoreDto } from 'src/dto/post-score.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { Score } from './score.interface';
 
 @Injectable()
 export class ScoreService {
@@ -15,12 +16,28 @@ export class ScoreService {
     private readonly em: EntityManager,
   ) {}
 
-  CalculateScore(answer_array: QuestionAnswer[]) {
+  CalculateScore(answer_array: QuestionAnswer[]): Score {
     let sum = 0;
+    let correct = 0;
+    let incorrect = 0;
+
     for (let i = 0; i < answer_array.length; i++) {
-      sum += this.CalculatePointsForSingleAnswer(answer_array[i]);
+      const points_for_this_answer = this.CalculatePointsForSingleAnswer(
+        answer_array[i],
+      );
+
+      if (points_for_this_answer === 0) {
+        incorrect++;
+      } else {
+        correct++;
+        sum += points_for_this_answer;
+      }
     }
-    return sum;
+    return {
+      score: sum,
+      correct_answers: correct,
+      incorrect_answers: incorrect,
+    };
   }
 
   async GetLeaderboard() {
