@@ -20,7 +20,6 @@ export class ScoreService {
     for (let i = 0; i < answer_array.length; i++) {
       sum += this.CalculatePointsForSingleAnswer(answer_array[i]);
     }
-
     return sum;
   }
 

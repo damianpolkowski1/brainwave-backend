@@ -7,7 +7,7 @@ import { PostScoreDto } from 'src/dto/post-score.dto';
 export class ScoreController {
   constructor(private readonly scoreService: ScoreService) {}
 
-  @Get('calculate')
+  @Post('calculate')
   calculateScore(@Body(ValidationPipe) payload: CalculateScoreDto) {
     return this.scoreService.CalculateScore(payload.answer_array);
   }
