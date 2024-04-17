@@ -18,6 +18,7 @@ export class ScoreService {
 
   CalculateScore(answer_array: QuestionAnswer[]): Score {
     let sum = 0;
+    let time_sum = 0;
     let correct = 0;
     let incorrect = 0;
 
@@ -25,6 +26,7 @@ export class ScoreService {
       const points_for_this_answer = this.CalculatePointsForSingleAnswer(
         answer_array[i],
       );
+      time_sum += answer_array[i].time;
 
       if (points_for_this_answer === 0) {
         incorrect++;
@@ -37,6 +39,7 @@ export class ScoreService {
       score: sum,
       correct_answers: correct,
       incorrect_answers: incorrect,
+      avg_answer_time: Math.floor(time_sum / answer_array.length),
     };
   }
 
