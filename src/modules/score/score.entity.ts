@@ -10,4 +10,10 @@ export class Leaderboard {
 
   @Property()
   score: number;
+
+  @Property()
+  category_id: number;
+
+  @Property()
+  date: Date;
 }

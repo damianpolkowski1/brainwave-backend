@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsDate } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class PostScoreDto {
   @IsNotEmpty()
@@ -8,4 +9,13 @@ export class PostScoreDto {
   @IsNotEmpty()
   @IsNumber()
   score: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  category_id: number;
+
+  @IsNotEmpty()
+  @Type(() => Date)
+  @IsDate()
+  date: Date;
 }
