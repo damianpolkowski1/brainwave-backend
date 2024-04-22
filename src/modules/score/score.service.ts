@@ -44,7 +44,7 @@ export class ScoreService {
   }
 
   async GetLeaderboard() {
-    return await this.em.findByCursor(
+    const response = await this.em.findByCursor(
       Leaderboard,
       {},
       {
@@ -52,6 +52,21 @@ export class ScoreService {
         orderBy: { score: 'desc' },
       },
     );
+
+    return response.items;
+  }
+
+  async GetLeaderboardByCategory(category_id: number) {
+    const response = await this.em.findByCursor(
+      Leaderboard,
+      { category_id: category_id },
+      {
+        first: 10,
+        orderBy: { score: 'desc' },
+      },
+    );
+
+    return response.items;
   }
 
   async PostScore(payload: PostScoreDto) {
@@ -64,6 +79,10 @@ export class ScoreService {
     this.em.persist(score);
     await this.em.flush();
     return score;
+  }
+
+  async EmptyTable() {
+    await this.em.nativeDelete(Leaderboard, {});
   }
 
   CalculatePointsForSingleAnswer(answer: QuestionAnswer) {

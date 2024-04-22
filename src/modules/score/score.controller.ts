@@ -1,5 +1,13 @@
 import { ScoreService } from './score.service';
-import { Controller, Get, Post, Body, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  ValidationPipe,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { CalculateScoreDto } from 'src/dto/calculate-score.dto';
 import { PostScoreDto } from 'src/dto/post-score.dto';
 
@@ -12,13 +20,19 @@ export class ScoreController {
     return this.scoreService.CalculateScore(payload.answer_array);
   }
 
-  @Get('leaderboard')
-  getLeaderboard() {
-    return this.scoreService.GetLeaderboard();
+  @Get('leaderboard/:category_id')
+  getLeaderboard(@Param('category_id') category_id: number) {
+    if (category_id == 0) return this.scoreService.GetLeaderboard();
+    else return this.scoreService.GetLeaderboardByCategory(category_id);
   }
 
   @Post('post')
   postScore(@Body(ValidationPipe) score: PostScoreDto) {
     return this.scoreService.PostScore(score);
+  }
+
+  @Delete('empty')
+  emptyTable() {
+    return this.scoreService.EmptyTable();
   }
 }
