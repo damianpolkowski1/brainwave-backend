@@ -2,16 +2,19 @@ import { QuestionService } from './question.service';
 import {
   Controller,
   Get,
-  Patch,
   Delete,
   Post,
   Body,
   ValidationPipe,
   Param,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { AddQuestionDto } from 'src/dto/add-question.dto';
-import { ModifyQuestionDto } from 'src/dto/modify-question.dto';
 import { Question } from './question.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { v4 as uuidv4 } from 'uuid';
 
 @Controller('question')
 export class QuestionController {
@@ -22,9 +25,14 @@ export class QuestionController {
     return this.questionService.GetAllQuestions();
   }
 
+  @Get('category/:id')
+  async getQuestionsByCategory(@Param('id') id: string) {
+    return await this.questionService.GetQuestionsByCategory(id);
+  }
+
   @Get('set/:id')
   async getSetOfQuestions(@Param('id') id: string) {
-    const response = await this.questionService.GetSetOfQuestions(id);
+    const response = await this.questionService.GetQuestionsByCategory(id);
     return this.extractSetOfQuestions(response);
   }
 
@@ -61,20 +69,94 @@ export class QuestionController {
   }
 
   @Post('add')
-  addQuestion(@Body(ValidationPipe) question: AddQuestionDto) {
-    return this.questionService.AddQuestion(question);
+  @UseInterceptors(
+    FileInterceptor('question_picture_path', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, callback) => {
+          const newId = uuidv4();
+          let extension = '';
+          const dotIndex = file.originalname.lastIndexOf('.');
+
+          if (dotIndex !== -1 && dotIndex < file.originalname.length - 1) {
+            extension = file.originalname.substring(dotIndex).toLowerCase();
+          } else {
+            extension = '.png';
+          }
+          const filename = newId + extension;
+          callback(null, filename);
+        },
+      }),
+    }),
+  )
+  async addQuestion(
+    @Body() newQuestion,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const response = await this.questionService.AddQuestion({
+      question_picture_path: file.filename,
+      ...newQuestion,
+    });
+
+    return response;
   }
 
-  @Patch('modify/:id')
-  modifyQuestion(
+  @Post('modify/:id')
+  @UseInterceptors(
+    FileInterceptor('question_picture_path', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, callback) => {
+          const newId = uuidv4();
+          let extension = '';
+          const dotIndex = file.originalname.lastIndexOf('.');
+
+          if (dotIndex !== -1 && dotIndex < file.originalname.length - 1) {
+            extension = file.originalname.substring(dotIndex).toLowerCase();
+          } else {
+            extension = '.png';
+          }
+          const filename = newId + extension;
+          callback(null, filename);
+        },
+      }),
+    }),
+  )
+  async modifyQuestion(
     @Param('id') id: string,
-    @Body() modifiedQuestion: ModifyQuestionDto,
+    @Body() updatedQuestion,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.questionService.ModifyQuestion(id, modifiedQuestion);
+    if (file) {
+      const response = await this.questionService
+        .ModifyQuestion(id, {
+          question_picture_path: file.filename,
+          ...updatedQuestion,
+        })
+        .then(() => {
+          this.questionService.DeleteUnusedImages();
+        });
+
+      return response;
+    } else {
+      const response = await this.questionService
+        .ModifyQuestion(id, {
+          ...updatedQuestion,
+        })
+        .then(() => {
+          this.questionService.DeleteUnusedImages();
+        });
+
+      return response;
+    }
   }
 
   @Delete('delete/:id')
-  deleteQuestion(@Param('id') id: string) {
-    return this.questionService.DeleteQuestion(id);
+  async deleteQuestion(@Param('id') id: string) {
+    const response = await this.questionService.DeleteQuestion(id).then(() => {
+      this.questionService.DeleteUnusedImages();
+    });
+
+    return response;
   }
 }

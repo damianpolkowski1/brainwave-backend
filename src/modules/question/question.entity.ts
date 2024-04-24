@@ -1,13 +1,10 @@
-import { Entity, PrimaryKey, Property, ManyToOne } from '@mikro-orm/core';
-import { Category } from '../category/category.entity';
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 
 @Entity({ tableName: 'Question' })
 export class Question {
   @PrimaryKey({ type: 'uuid' })
   question_id: string;
 
-  // @ManyToOne()
-  // category_id: Category;
   @Property()
   category_id: number;
 

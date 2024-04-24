@@ -11,6 +11,7 @@ import { Category } from './category.entity';
     MulterModule.register({ dest: './uploads' }),
   ],
   controllers: [CategoryController],
-  providers: [CategoryService]
+  providers: [CategoryService],
+  exports: [CategoryService]
 })
 export class CategoryModule {}

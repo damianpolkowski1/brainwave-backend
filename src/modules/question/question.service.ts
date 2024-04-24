@@ -5,10 +5,12 @@ import { EntityManager, EntityRepository } from '@mikro-orm/core';
 import { v4 as uuidv4 } from 'uuid';
 import { AddQuestionDto } from 'src/dto/add-question.dto';
 import { ModifyQuestionDto } from 'src/dto/modify-question.dto';
+import { CategoryService } from '../category/category.service';
 
 @Injectable()
 export class QuestionService {
   constructor(
+    private readonly categoryService: CategoryService,
     @InjectRepository(Question)
     private readonly questionRepository: EntityRepository<Question>,
 
@@ -19,8 +21,12 @@ export class QuestionService {
     return await this.questionRepository.findAll();
   }
 
-  async GetSetOfQuestions(category_id) {
-    return await this.questionRepository.find({ category_id: category_id });
+  async GetQuestionsByCategory(category_id) {
+    if (category_id == 0) {
+      return await this.questionRepository.findAll();
+    } else {
+      return await this.questionRepository.find({ category_id: category_id });
+    }
   }
 
   async GetQuestionById(id: string): Promise<Question> {
@@ -69,5 +75,45 @@ export class QuestionService {
     this.em.remove(question_to_delete);
     await this.em.flush();
     return question_to_delete;
+  }
+
+  getFileExtension(filename: string): string {
+    const dotIndex = filename.lastIndexOf('.');
+    
+    if (dotIndex !== -1 && dotIndex < filename.length - 1) {
+        return filename.substring(dotIndex).toLowerCase();
+    } else {
+        return "";
+    }
+  }
+
+  async DeleteUnusedImages() {
+    const path = require('path');
+    const uploadsDir = path.resolve(__dirname, '../../..') + '\\uploads';
+    let categoryPictureLinks = [];
+
+    await this.categoryService.GetListOfCategories().then((response) => {
+      categoryPictureLinks = response.map(function (element) {
+        return element.category_picture_path;
+      })
+    });
+
+    await this.GetAllQuestions().then((response) => {
+      let pictureLinks = response.map(function (element) {
+        return element.question_picture_path;
+      });
+
+      const allPictureLinks = pictureLinks.concat(categoryPictureLinks);
+
+      const fs = require('fs');
+
+      fs.readdir(uploadsDir, (err, files) => {
+        files.forEach((file) => {
+          if (!allPictureLinks.includes(file)) {
+            fs.unlink(uploadsDir + '\\' + file, function () {});
+          }
+        });
+      });
+    });
   }
 }
